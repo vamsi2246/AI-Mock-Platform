@@ -3,12 +3,14 @@ import { ReportService } from "../services/report.service.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 
 export const startInterview = asyncHandler(async (req, res) => {
-  const { type, difficulty, duration } = req.body;
+  const { type, difficulty, duration, resumeContext, jobDescription } = req.body;
   const result = await InterviewService.startInterview(
     req.user.userId,
     type,
     difficulty || "INTERMEDIATE",
     duration || 1800,
+    resumeContext,
+    jobDescription
   );
 
   res.status(201).json({

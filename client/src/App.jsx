@@ -5,6 +5,7 @@ import { AuthProvider } from "./context/AuthContext";
 import { ThemeProvider } from "./context/ThemeContext";
 import { ProtectedRoute } from "./components/layout/ProtectedRoute";
 import { DashboardLayout } from "./components/layout/DashboardLayout";
+import { ErrorBoundary } from "./components/layout/ErrorBoundary";
 import { lazy, Suspense } from "react";
 
 // Lazy loaded pages
@@ -45,7 +46,8 @@ export default function App() {
       <ThemeProvider>
         <AuthProvider>
           <BrowserRouter>
-            <Suspense fallback={<LoadingFallback />}>
+            <ErrorBoundary>
+              <Suspense fallback={<LoadingFallback />}>
               <Routes>
                 {/* Public */}
                 <Route path="/" element={<Landing />} />
@@ -69,6 +71,7 @@ export default function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </Suspense>
+            </ErrorBoundary>
             <Toaster
               position="top-right"
               toastOptions={{

@@ -59,6 +59,8 @@ model InterviewSession {
   duration        Int             @default(1800) // seconds
   actualDuration  Int?
   vapiCallId      String?
+  resumeContext   String?
+  jobDescription  String?
   startedAt       DateTime        @default(now())
   endedAt         DateTime?
   createdAt       DateTime        @default(now())

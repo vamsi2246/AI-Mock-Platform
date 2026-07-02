@@ -71,6 +71,8 @@ export default function InterviewSetup() {
   const [selectedType, setSelectedType] = useState(null);
   const [difficulty, setDifficulty] = useState("INTERMEDIATE");
   const [duration, setDuration] = useState(1800);
+  const [resumeContext, setResumeContext] = useState("");
+  const [jobDescription, setJobDescription] = useState("");
   const [isStarting, setIsStarting] = useState(false);
 
   const handleStart = async () => {
@@ -85,6 +87,8 @@ export default function InterviewSetup() {
         type: selectedType,
         difficulty,
         duration,
+        resumeContext,
+        jobDescription
       });
       // Store assistant config in sessionStorage for the interview room
       sessionStorage.setItem(
@@ -163,6 +167,35 @@ export default function InterviewSetup() {
               <p className="text-xs text-surface-400 mt-1">{d.description}</p>
             </button>
           ))}
+        </div>
+      </div>
+
+      {/* Personalization Context */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold mb-4">Personalization (Optional)</h2>
+        <div className="grid md:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-surface-600 dark:text-surface-300">
+              Paste your Resume
+            </label>
+            <textarea 
+              value={resumeContext}
+              onChange={(e) => setResumeContext(e.target.value)}
+              placeholder="Paste your resume text here so the AI can ask about your past projects..."
+              className="w-full h-32 p-4 rounded-xl bg-surface-100 dark:bg-surface-900 border border-surface-300 dark:border-surface-700 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none custom-scrollbar"
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-surface-600 dark:text-surface-300">
+              Paste Job Description
+            </label>
+            <textarea 
+              value={jobDescription}
+              onChange={(e) => setJobDescription(e.target.value)}
+              placeholder="Paste the job description so the AI can tailor questions to the role..."
+              className="w-full h-32 p-4 rounded-xl bg-surface-100 dark:bg-surface-900 border border-surface-300 dark:border-surface-700 text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none custom-scrollbar"
+            />
+          </div>
         </div>
       </div>
 

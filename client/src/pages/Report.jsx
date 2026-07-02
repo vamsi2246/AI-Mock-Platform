@@ -138,12 +138,28 @@ export default function Report() {
 
   if (isLoading || isGenerating) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
-        <div className="w-16 h-16 rounded-full border-4 border-brand-200 border-t-brand-600 animate-spin" />
-        <p className="text-surface-500">Generating your feedback report...</p>
-        <p className="text-sm text-surface-400">
-          Our AI is analyzing your interview transcript
-        </p>
+      <div className="max-w-4xl mx-auto space-y-8 animate-pulse">
+        <div className="flex items-center justify-between">
+          <div className="space-y-3">
+            <div className="h-4 w-32 bg-surface-200 dark:bg-surface-800 rounded-md"></div>
+            <div className="h-8 w-64 bg-surface-200 dark:bg-surface-800 rounded-lg"></div>
+            <div className="h-4 w-48 bg-surface-200 dark:bg-surface-800 rounded-md"></div>
+          </div>
+          <div className="h-10 w-32 bg-surface-200 dark:bg-surface-800 rounded-xl"></div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-6">
+          <div className="glass-card p-8 h-[280px] bg-surface-100 dark:bg-surface-900 border-surface-200 dark:border-surface-800"></div>
+          <div className="glass-card p-8 h-[280px] bg-surface-100 dark:bg-surface-900 border-surface-200 dark:border-surface-800"></div>
+        </div>
+        
+        <div className="glass-card p-8 h-32 bg-surface-100 dark:bg-surface-900 border-surface-200 dark:border-surface-800"></div>
+        <div className="glass-card p-8 h-64 bg-surface-100 dark:bg-surface-900 border-surface-200 dark:border-surface-800"></div>
+
+        <div className="text-center pt-8">
+          <p className="text-surface-500 font-medium">Analyzing interview transcript...</p>
+          <p className="text-sm text-surface-400 mt-1">Generating your personalized feedback report</p>
+        </div>
       </div>
     );
   }

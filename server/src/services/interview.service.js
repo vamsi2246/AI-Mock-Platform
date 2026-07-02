@@ -13,7 +13,7 @@ export class InterviewService {
    * 4. Build Vapi assistant config
    * 5. Return config to frontend
    */
-  static async startInterview(userId, type, difficulty, duration = 1800) {
+  static async startInterview(userId, type, difficulty, duration = 1800, resumeContext = "", jobDescription = "") {
     // Get candidate profile for prompt context
     const profile = await prisma.profile.findUnique({ where: { userId } });
     const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -31,6 +31,8 @@ export class InterviewService {
         type,
         difficulty,
         duration,
+        resumeContext,
+        jobDescription,
         status: "IN_PROGRESS",
       },
     });
@@ -43,7 +45,8 @@ export class InterviewService {
       yearsExperience: profile?.yearsExperience || 0,
       targetRole: profile?.targetRole || "Software Engineer",
       skills: typeof profile?.skills === 'string' ? JSON.parse(profile.skills) : (profile?.skills || []),
-      resumeText: profile?.resumeText,
+      resumeText: resumeContext || profile?.resumeText,
+      jobDescription
     });
 
     // Build first message
