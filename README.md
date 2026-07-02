@@ -1,90 +1,474 @@
-# AI Mock Interview Platform
+# 🎙️ AI Mock Interview Platform
 
-A production-ready, full-stack web application where candidates have **natural, real-time voice conversations** with an AI interviewer. The AI dynamically generates questions from full conversation context, adapts difficulty based on candidate performance, and produces detailed feedback reports.
+> A production-ready AI-powered voice interview platform that delivers dynamic, personalized mock interviews with adaptive follow-up questions, conversation memory, and detailed feedback reports.
 
-> **This is NOT a chatbot. This is NOT a quiz app.**
-> Every question is generated from the entire conversation history. The AI reacts to your actual answers.
+---
 
-## Architecture & Technology Choices
+## 📖 Overview
 
-```mermaid
-graph TD
-    UI[React 19 Frontend] <-->|Voice Stream| Vapi[Vapi AI Cloud]
-    UI <-->|HTTPS/REST| API[Express API]
-    Vapi <-->|Custom LLM Webhook| API
-    API <-->|Stateful Prompt Engine| OpenAI[OpenAI GPT-4o]
-    API <-->|Prisma ORM| DB[(SQLite)]
+The AI Mock Interview Platform enables candidates to practice realistic interviews through natural voice conversations with an AI interviewer.
+
+Unlike traditional mock interview applications that rely on predefined question lists or chatbot interactions, this platform creates an adaptive interview experience by understanding candidate responses, maintaining conversation context, and generating intelligent follow-up questions.
+
+The goal is to simulate the experience of speaking with a real interviewer while providing actionable feedback for continuous improvement.
+
+---
+
+# ✨ Key Features
+
+### 🎤 Real-Time Voice Interviews
+
+- AI-powered voice conversations
+- Natural interviewer introductions
+- Real-time speech recognition
+- AI voice responses
+- Live conversation flow
+- Voice activity indicators
+- AI thinking animations
+
+---
+
+### 🧠 Adaptive AI Conversation
+
+The AI interviewer dynamically:
+
+- Understands candidate responses
+- Maintains conversation memory
+- References previous answers
+- Generates contextual follow-up questions
+- Adjusts interview difficulty
+- Challenges weak responses
+- Explores strong answers in greater depth
+- Progresses naturally through interview stages
+
+Unlike static interview platforms, every question is generated using the entire interview context.
+
+---
+
+### 📄 Resume-Aware Interviews
+
+Candidates can upload their resume.
+
+The AI extracts:
+
+- Skills
+- Projects
+- Technologies
+- Experience
+
+Interview questions are then personalized using the candidate's background.
+
+Example:
+
+Instead of asking generic React questions, the interviewer asks about projects actually listed in the resume.
+
+---
+
+### 💼 Job Description Personalization
+
+Candidates can paste a Job Description.
+
+The AI extracts:
+
+- Required technologies
+- Responsibilities
+- Skills
+- Experience
+
+Interview questions are aligned with the target role, making the interview more realistic.
+
+---
+
+### 📊 AI Feedback Reports
+
+After every interview, the platform generates a professional report containing:
+
+- Executive Summary
+- Overall Score
+- Communication Analysis
+- Confidence Analysis
+- Technical Knowledge
+- Leadership Assessment
+- Problem Solving Evaluation
+- STAR Framework Analysis
+- Strengths
+- Weaknesses
+- Personalized Improvement Roadmap
+- Hiring Recommendation
+
+---
+
+### 📈 Analytics Dashboard
+
+Candidates can track:
+
+- Interview History
+- Average Scores
+- Weekly Progress
+- Interview Streak
+- Skill Improvement
+- Recent Reports
+- Recommended Practice Areas
+
+---
+
+# 🏗️ System Architecture
+
+```
+                +----------------------+
+                |      React App       |
+                +----------+-----------+
+                           |
+                           |
+                           ▼
+                +----------------------+
+                |     Express API      |
+                +----------+-----------+
+                           |
+                           |
+         +-----------------+-----------------+
+         |                                   |
+         ▼                                   ▼
++------------------+              +----------------------+
+| Conversation AI  |              | Authentication Layer |
++------------------+              +----------------------+
+         |
+         ▼
++---------------------------+
+| Prompt Builder            |
+| Resume Context            |
+| Job Description Context   |
+| Conversation Memory       |
++-------------+-------------+
+              |
+              ▼
+      +---------------+
+      | Vapi + OpenAI |
+      +---------------+
+              |
+              ▼
+      +---------------+
+      | SQLite DB     |
+      +---------------+
 ```
 
-### Why these technologies?
-- **Vapi AI**: Chose Vapi for ultra-low latency conversational AI voice streaming. It handles Voice Activity Detection (VAD) and WebRTC better than building from scratch.
-- **Stateful Conversation Engine**: Vapi allows specifying a Custom LLM endpoint. We route the LLM decisions through our own backend powered by `prompt.builder.js`. This gives us a state machine approach to track interview context, evaluate answers deeply, track difficulty, and systematically decide whether to challenge, follow-up, or move topics without relying on a single mega-prompt.
-- **React 19 & Vite**: State-of-the-art frontend tooling. React 19 provides enhanced concurrency, and Vite provides instant HMR.
-- **TanStack Query**: Perfect for server-state synchronization (interviews, reports). It simplifies loading/error states and optimistic updates.
-- **Prisma + SQLite**: Type-safe ORM with a robust, highly portable database capable of handling complex JSON reports and interconnected user session data without requiring a separate DB server.
+---
 
-## Features
-
-- **🎤 Real-time Voice Interview** — Full voice conversation with AI.
-- **🧠 Conversation Engine** — Interview states are managed dynamically to evaluate and adapt difficulty.
-- **🔄 Dynamic Question Generation** — Every question comes from conversation context, never a fixed list.
-- **📊 Detailed Feedback Reports** — Scores, strengths, weaknesses, radar charts, executive summaries, and timeline view showing AI reasoning.
-- **📈 Dashboard Analytics** — Score progression, interview history, streak tracking, average duration, and recommended practice areas.
-- **🔐 JWT Authentication** — Secure signup/login with refresh token rotation.
-- **🌙 Dark Mode** — Full dark/light theme support.
-
-## Folder Structure
+# 🧠 AI Conversation Flow
 
 ```
-├── client/                 # React frontend
-│   └── src/
-│       ├── components/     # UI components (layout, landing, dashboard, etc.)
-│       ├── pages/          # Route pages
-│       ├── hooks/          # Custom hooks (useVapi, useTimer, etc.)
-│       ├── services/       # API client services
-│       ├── context/        # Auth & Theme providers
+Candidate Starts Interview
+           │
+           ▼
+ AI Introduces Itself
+           │
+           ▼
+ Ask First Question
+           │
+           ▼
+ Candidate Answers
+           │
+           ▼
+ Analyze Response
+           │
+           ▼
+ Retrieve Conversation Memory
+           │
+           ▼
+ Resume Context
+           │
+           ▼
+ Job Description Context
+           │
+           ▼
+ Generate Follow-Up Question
+           │
+           ▼
+ Continue Until Interview Ends
+           │
+           ▼
+ Generate Final Report
+```
+
+---
+
+# 🛠️ Tech Stack
+
+## Frontend
+
+- React
+- Vite
+- Tailwind CSS
+- React Router
+- TanStack Query
+- Framer Motion
+- Lucide Icons
+
+---
+
+## Backend
+
+- Node.js
+- Express.js
+- JWT Authentication
+- bcrypt
+
+---
+
+## Database
+
+- SQLite
+
+---
+
+## AI
+
+- OpenAI GPT
+- Vapi Voice AI
+
+---
+
+# 📂 Project Structure
+
+```
+client/
 │
-├── server/                 # Express backend
-│   └── src/
-│       ├── controllers/    # Request handlers (including webhook)
-│       ├── routes/         # API route definitions
-│       ├── services/       # Business logic
-│       │   └── conversation.service.js # Logic engine & metadata tracking
-│       │   └── prompt.builder.js # Dynamic prompt construction
-│       ├── middleware/     # Auth, validation, rate limiting
-│       ├── prisma/         # Database schema (SQLite)
+├── components/
+├── pages/
+├── hooks/
+├── services/
+├── context/
+├── utils/
+└── assets/
+
+server/
+│
+├── controllers/
+├── routes/
+├── services/
+├── prompts/
+├── middleware/
+├── database/
+└── utils/
 ```
 
-## Setup Instructions (Run locally in under 5 commands)
+---
 
-Make sure you have Docker and Node.js installed.
+# 🔄 Interview Lifecycle
 
-1. **Clone the repo and configure environment variables**
-   ```bash
-   git clone <repo> && cd AI-Mock-Platform
-   cp server/.env.example server/.env && echo "VITE_VAPI_PUBLIC_KEY=your-key" > client/.env
-   ```
-2. **Install Dependencies**
-   ```bash
-   cd server && npm install && cd ../client && npm install && cd ..
-   ```
-3. **Run Migrations & Start Servers concurrently**
-   ```bash
-   cd server && npx prisma db push && npm run dev & cd client && npm run dev
-   ```
+```
+Signup
 
-## Deployment Instructions
+↓
 
-| Service | Platform | Config |
-|---------|----------|--------|
-| Frontend | Vercel | Auto-detected from `client/` directory. |
-| Backend | Railway / Render | Set `server/` as root directory. Start command: `npm run build && npm start`. |
-| Database | SQLite | Self-contained, committed inside `server/prisma/` or mounted via volume. |
+Profile Setup
 
-> **Vapi Custom LLM**: If deploying to production, set `VAPI_CUSTOM_LLM_URL` in the server environment variables to point to `https://your-backend.com/api/webhook/llm`.
+↓
 
-## Future Improvements & Trade-offs
+Resume Upload (Optional)
 
-- **Trade-off: WebRTC vs Custom LLM Latency**: Introducing a Custom LLM endpoint slightly increases latency compared to hitting OpenAI directly from Vapi's servers. However, this trade-off was explicitly chosen to drastically improve the *depth and quality* of the interview interaction loop and generate Chain of Thought metadata.
-- **Future Improvement: Persistent WebSocket**: Instead of standard HTTP webhooks, migrating the custom LLM endpoint to a WebSocket connection would reduce handshake latency for every turn of conversation.
-- **Future Improvement: Live Code Execution**: Integrating a code execution environment (like Judge0) during the technical interview where the AI can "see" what the candidate is typing.
+↓
+
+Paste Job Description (Optional)
+
+↓
+
+Choose Interview Type
+
+↓
+
+System Check
+
+↓
+
+Voice Interview
+
+↓
+
+Adaptive AI Conversation
+
+↓
+
+Dynamic Follow-up Questions
+
+↓
+
+Interview Ends
+
+↓
+
+AI Feedback Report
+
+↓
+
+Dashboard History
+```
+
+---
+
+# 🔒 Security
+
+- JWT Authentication
+- Password Hashing (bcrypt)
+- Protected API Routes
+- Environment Variables
+- Input Validation
+- CORS Protection
+
+---
+
+# ⚡ Performance Optimizations
+
+- Lazy Loading
+- API Caching
+- Optimized React Rendering
+- Efficient Database Queries
+- Modular Architecture
+
+---
+
+# 📱 Responsive Design
+
+Supports:
+
+- Desktop
+- Tablet
+- Mobile
+
+---
+
+# 🎯 Assignment Highlights
+
+This project was designed around the assignment's primary objective:
+
+✅ Dynamic AI Conversations
+
+✅ Real-Time Voice Interviews
+
+✅ Personalized Resume-Based Questions
+
+✅ Job Description Awareness
+
+✅ Adaptive Follow-Up Questions
+
+✅ Conversation Memory
+
+✅ AI Feedback Reports
+
+✅ Premium User Experience
+
+✅ Clean Architecture
+
+---
+
+# 🚀 Getting Started
+
+## Clone Repository
+
+```bash
+git clone https://github.com/vamsi2246/AI-Mock-Platform.git
+```
+
+## Install Dependencies
+
+```bash
+cd client
+npm install
+
+cd ../server
+npm install
+```
+
+## Configure Environment Variables
+
+### Client
+
+```env
+VITE_API_URL=http://localhost:3001
+VITE_VAPI_PUBLIC_KEY=
+```
+
+### Server
+
+```env
+OPENAI_API_KEY=
+JWT_SECRET=
+DATABASE_URL="file:./dev.db"
+VAPI_PRIVATE_KEY=
+```
+
+---
+
+## Run Backend
+
+```bash
+cd server
+npx prisma db push
+npm run dev
+```
+
+---
+
+## Run Frontend
+
+```bash
+cd client
+npm run dev
+```
+
+---
+
+# 📸 Screenshots
+
+## Landing Page
+
+> Add Screenshot Here
+
+---
+
+## Dashboard
+
+> Add Screenshot Here
+
+---
+
+## Interview Room
+
+> Add Screenshot Here
+
+---
+
+## Feedback Report
+
+> Add Screenshot Here
+
+---
+
+# 🔮 Future Improvements
+
+- Multiple AI Interview Personas
+- Coding Interview Support
+- Team Interview Mode
+- Company-specific Interview Templates
+- Multi-language Interviews
+- AI Voice Emotion Detection
+- Interview Replay
+- Cloud Storage Integration
+
+---
+
+# 👨💻 Author
+
+**Vamsi K**
+
+GitHub: https://github.com/vamsi2246
+
+LinkedIn: https://linkedin.com/in/vamsi2246
+
+---
+
+# ⭐ Why This Project?
+
+This project was built to demonstrate how Large Language Models and Voice AI can be combined to create realistic interview experiences.
+
+Instead of functioning as a simple chatbot, the platform maintains conversational context, personalizes interviews using resume and job description data, adapts follow-up questions in real time, and delivers detailed AI-generated feedback—creating an experience that closely resembles a real technical or behavioral interview.
