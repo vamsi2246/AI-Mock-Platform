@@ -1,6 +1,7 @@
 import openai from "../lib/openai.js";
 import prisma from "../lib/prisma.js";
-import { buildReportPrompt } from "./ai.service.js";
+import { ChatOpenAI } from "@langchain/openai";
+import { PromptBuilder } from "./prompt.builder.js";
 import { ApiError } from "../utils/apiError.js";
 import logger from "../utils/logger.js";
 
@@ -48,14 +49,16 @@ export class ReportService {
 
     const targetRole = session.user.profile?.targetRole || "Software Engineer";
 
+    const messages = session.messages.map((m) => ({
+      role: m.role.toLowerCase(),
+      content: m.content,
+    }));
+
     // Build the report generation prompt
-    const prompt = buildReportPrompt(
+    const prompt = PromptBuilder.buildReportPrompt(
       session.type,
       session.difficulty,
-      session.messages.map((m) => ({
-        role: m.role.toLowerCase(),
-        content: m.content,
-      })),
+      messages,
       candidateName,
       targetRole,
     );
@@ -76,9 +79,9 @@ export class ReportService {
       );
     }
 
-    let reportData;
+    let parsed;
     try {
-      reportData = JSON.parse(responseText);
+      parsed = JSON.parse(responseText);
     } catch {
       logger.error("Failed to parse report JSON", { sessionId, responseText });
       throw ApiError.internal("Failed to parse AI response");
@@ -88,28 +91,31 @@ export class ReportService {
     const report = await prisma.feedbackReport.create({
       data: {
         sessionId,
-        overallScore: reportData.overallScore ?? 0,
-        communicationScore: reportData.communicationScore ?? 0,
-        technicalScore: reportData.technicalScore ?? 0,
-        confidenceScore: reportData.confidenceScore ?? 0,
-        problemSolvingScore: reportData.problemSolvingScore ?? 0,
-        leadershipScore: reportData.leadershipScore ?? 0,
-        strengths: reportData.strengths ?? [],
-        weaknesses: reportData.weaknesses ?? [],
-        improvements: reportData.improvements ?? [],
-        hiringRecommendation: reportData.hiringRecommendation ?? "N/A",
-        summary: reportData.summary ?? "",
-        detailedFeedback: reportData,
+        executiveSummary: parsed.executiveSummary || "N/A",
+        blindSpots: parsed.blindSpots ? JSON.stringify(parsed.blindSpots) : "[]",
+        preparationRoadmap: parsed.preparationRoadmap || "",
+        overallScore: parsed.overallScore ?? 0,
+        communicationScore: parsed.communicationScore ?? 0,
+        technicalScore: parsed.technicalScore ?? 0,
+        confidenceScore: parsed.confidenceScore ?? 0,
+        problemSolvingScore: parsed.problemSolvingScore ?? 0,
+        leadershipScore: parsed.leadershipScore ?? 0,
+        strengths: parsed.strengths ? JSON.stringify(parsed.strengths) : "[]",
+        weaknesses: parsed.weaknesses ? JSON.stringify(parsed.weaknesses) : "[]",
+        improvements: parsed.improvements ? JSON.stringify(parsed.improvements) : "[]",
+        hiringRecommendation: parsed.hiringRecommendation ?? "N/A",
+        summary: parsed.summary ?? "",
+        detailedFeedback: parsed ? JSON.stringify(parsed) : null,
       },
     });
 
     // Create individual category scores
     const categories = [
-      { category: "Communication", score: reportData.communicationScore },
-      { category: "Technical Knowledge", score: reportData.technicalScore },
-      { category: "Confidence", score: reportData.confidenceScore },
-      { category: "Problem Solving", score: reportData.problemSolvingScore },
-      { category: "Leadership", score: reportData.leadershipScore },
+      { category: "Communication", score: parsed.communicationScore },
+      { category: "Technical Knowledge", score: parsed.technicalScore },
+      { category: "Confidence", score: parsed.confidenceScore },
+      { category: "Problem Solving", score: parsed.problemSolvingScore },
+      { category: "Leadership", score: parsed.leadershipScore },
     ];
 
     await prisma.sessionScore.createMany({

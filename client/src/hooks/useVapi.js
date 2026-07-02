@@ -11,6 +11,7 @@ export function useVapi({
   const [isMuted, setIsMuted] = useState(false);
   const [transcript, setTranscript] = useState([]);
   const [volumeLevel, setVolumeLevel] = useState(0);
+  const [isThinking, setIsThinking] = useState(false);
   const vapiRef = useRef(null);
   const callIdRef = useRef(null);
 
@@ -42,6 +43,7 @@ export function useVapi({
 
       vapi.on("speech-start", () => {
         updateStatus("speaking");
+        setIsThinking(false);
       });
 
       vapi.on("speech-end", () => {
@@ -60,6 +62,10 @@ export function useVapi({
           };
           setTranscript((prev) => [...prev, msg]);
           onMessage?.(msg);
+          
+          if (msg.role === "user") {
+            setIsThinking(true);
+          }
         }
       });
 
@@ -133,6 +139,7 @@ export function useVapi({
     transcript,
     volumeLevel,
     callId: callIdRef.current,
+    isThinking,
     startCall,
     endCall,
     toggleMute,

@@ -86,6 +86,29 @@ export const handleCustomLLM = asyncHandler(async (req, res) => {
   const graph = ConversationEngine.getGraph();
   const finalState = await graph.invoke(initialState);
 
+  // Extract explainability metadata
+  const evaluationSummary = finalState.evaluationNotes[finalState.evaluationNotes.length - 1] || "";
+  const nextAction = finalState.nextAction || "";
+  const currentDifficulty = finalState.currentDifficulty || "INTERMEDIATE";
+
+  // Save metadata directly to the session for explainability timeline
+  if (metadata?.sessionId) {
+    try {
+      await InterviewService.saveMessage(
+        metadata.sessionId,
+        "METADATA",
+        `[AI REASONING] Evaluated as: ${evaluationSummary} | Action: ${nextAction}`,
+        {
+          difficulty: currentDifficulty,
+          evaluationSummary: evaluationSummary,
+          reasonForFollowUp: nextAction
+        }
+      );
+    } catch (err) {
+      logger.error("Failed to save metadata", err);
+    }
+  }
+
   // Return exactly the format OpenAI returns, since Vapi expects OpenAI-compatible responses
   res.json({
     id: `chatcmpl-${Date.now()}`,

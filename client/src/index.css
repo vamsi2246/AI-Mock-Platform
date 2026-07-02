@@ -66,6 +66,33 @@
   }
 }
 
+@layer components {
+  .input-field {
+    @apply w-full h-12 px-4 rounded-xl bg-surface-100 dark:bg-surface-900 border border-surface-300 dark:border-surface-700 text-surface-900 dark:text-surface-50 focus:outline-none focus:ring-2 focus:ring-brand-500 transition-colors;
+  }
+  .glass-card {
+    @apply bg-white/70 dark:bg-surface-900/40 backdrop-blur-xl border border-surface-200 dark:border-surface-800 rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.12)];
+  }
+  .card-hover {
+    @apply transition-all duration-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] dark:hover:shadow-[0_8px_30px_rgb(0,0,0,0.2)] hover:border-brand-500/30 hover:-translate-y-1;
+  }
+  .custom-scrollbar::-webkit-scrollbar {
+    @apply w-1.5;
+  }
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-surface-300 dark:bg-surface-700 rounded-full;
+  }
+  .gradient-text {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-500 to-indigo-500;
+  }
+  .gradient-btn {
+    @apply bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl shadow-lg shadow-brand-500/20 hover:shadow-brand-500/40 transition-all duration-300;
+  }
+}
+
 @layer base {
   * {
     @apply border-surface-200 dark:border-surface-700;

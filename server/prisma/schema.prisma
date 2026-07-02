@@ -84,6 +84,13 @@ model ConversationMessage {
   sessionId   String
   role        String
   content     String
+  
+  // Explainability Metadata
+  topic             String?
+  difficulty        String?
+  evaluationSummary String?
+  reasonForFollowUp String?
+
   timestamp   DateTime    @default(now())
   createdAt   DateTime    @default(now())
 
@@ -109,6 +116,9 @@ model FeedbackReport {
   weaknesses            String @default("[]")
   improvements          String @default("[]")
   hiringRecommendation  String   @default("")
+  executiveSummary      String?
+  blindSpots            String   @default("[]")
+  preparationRoadmap    String?
   summary               String   @default("")
   detailedFeedback      String?
   createdAt             DateTime @default(now())

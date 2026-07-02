@@ -2,11 +2,15 @@ import prisma from "../lib/prisma.js";
 
 export class DashboardService {
   static async getDashboard(userId) {
-    const [totalInterviews, completedInterviews, recentSessions, allReports] =
+    const [totalInterviews, completedInterviews, completedWithDuration, recentSessions, allReports] =
       await Promise.all([
         prisma.interviewSession.count({ where: { userId } }),
         prisma.interviewSession.count({
           where: { userId, status: "COMPLETED" },
+        }),
+        prisma.interviewSession.findMany({
+          where: { userId, status: "COMPLETED", actualDuration: { not: null } },
+          select: { actualDuration: true },
         }),
         prisma.interviewSession.findMany({
           where: { userId },
@@ -42,7 +46,23 @@ export class DashboardService {
           )
         : 0;
 
-    // Calculate streak (consecutive days with interviews)
+    // Calculate average duration in minutes
+    const totalDurationSeconds = completedWithDuration.reduce((acc, session) => acc + (session.actualDuration || 0), 0);
+    const avgDurationMins = completedWithDuration.length > 0 ? Math.round((totalDurationSeconds / completedWithDuration.length) / 60) : 0;
+
+    // Calculate recommended practice based on lowest score
+    let recommendedPractice = "Behavioral"; // default
+    if (allReports.length > 0) {
+      const avgScores = {
+        Communication: allReports.reduce((s, r) => s + r.communicationScore, 0) / allReports.length,
+        Technical: allReports.reduce((s, r) => s + r.technicalScore, 0) / allReports.length,
+        "System Design": allReports.reduce((s, r) => s + r.problemSolvingScore, 0) / allReports.length,
+      };
+      
+      const lowestCategory = Object.keys(avgScores).reduce((a, b) => avgScores[a] < avgScores[b] ? a : b);
+      recommendedPractice = lowestCategory;
+    }
+
     const streak = await this.calculateStreak(userId);
 
     // Interview type distribution
@@ -79,6 +99,8 @@ export class DashboardService {
         completedInterviews,
         averageScore: avgScore,
         streak,
+        averageDuration: avgDurationMins,
+        recommendedPractice
       },
       recentSessions: recentSessions.map((s) => ({
         id: s.id,

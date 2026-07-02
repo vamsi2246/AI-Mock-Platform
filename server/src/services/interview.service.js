@@ -1,5 +1,5 @@
 import prisma from "../lib/prisma.js";
-import { buildSystemPrompt } from "./ai.service.js";
+import { PromptBuilder } from "./prompt.builder.js";
 import { VapiService } from "./vapi.service.js";
 import { ApiError } from "../utils/apiError.js";
 import logger from "../utils/logger.js";
@@ -36,16 +36,14 @@ export class InterviewService {
     });
 
     // Build system prompt with full candidate context
-    const systemPrompt = buildSystemPrompt({
+    const systemPrompt = PromptBuilder.buildSystemPrompt({
       interviewType: type,
       difficulty,
-      candidateName,
-      targetRole: profile?.targetRole || "Software Engineer",
-      currentRole: profile?.currentRole || "Developer",
+      firstName: profile?.firstName || "Candidate",
       yearsExperience: profile?.yearsExperience || 0,
+      targetRole: profile?.targetRole || "Software Engineer",
       skills: typeof profile?.skills === 'string' ? JSON.parse(profile.skills) : (profile?.skills || []),
       resumeText: profile?.resumeText,
-      duration: Math.round(duration / 60),
     });
 
     // Build first message
@@ -157,9 +155,17 @@ export class InterviewService {
   /**
    * Save a single message during an ongoing interview
    */
-  static async saveMessage(sessionId, role, content) {
+  static async saveMessage(sessionId, role, content, metadata = {}) {
     return prisma.conversationMessage.create({
-      data: { sessionId, role, content },
+      data: {
+        sessionId,
+        role,
+        content,
+        topic: metadata.topic,
+        difficulty: metadata.difficulty,
+        evaluationSummary: metadata.evaluationSummary,
+        reasonForFollowUp: metadata.reasonForFollowUp
+      },
     });
   }
 

@@ -11,10 +11,12 @@ import {
   MessageSquare,
   X,
   ChevronUp,
+  Loader2,
 } from "lucide-react";
 import { useVapi } from "../hooks/useVapi";
 import { useTimer } from "../hooks/useTimer";
 import { interviewService } from "../services/interview.service";
+import { SystemCheck } from "../components/interview/SystemCheck";
 import toast from "react-hot-toast";
 
 const VAPI_KEY = import.meta.env.VITE_VAPI_PUBLIC_KEY || "";
@@ -26,6 +28,13 @@ const TYPE_LABELS = {
   HR: "HR Interview",
 };
 
+const TYPE_PERSONAS = {
+  BEHAVIORAL: "Sarah Chen (Senior Engineering Manager)",
+  TECHNICAL: "Alex Rivera (Staff Software Engineer)",
+  SYSTEM_DESIGN: "Priya Sharma (Principal Engineer)",
+  HR: "Michael Torres (VP of People & Culture)",
+};
+
 export default function InterviewRoom() {
   const { id: sessionId } = useParams();
   const navigate = useNavigate();
@@ -33,6 +42,7 @@ export default function InterviewRoom() {
   const [isEnding, setIsEnding] = useState(false);
   const [showTranscript, setShowTranscript] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
+  const [systemCheckPassed, setSystemCheckPassed] = useState(false);
   const transcriptEndRef = useRef(null);
 
   // Vapi hook
@@ -41,6 +51,7 @@ export default function InterviewRoom() {
     isMuted,
     transcript,
     volumeLevel,
+    isThinking,
     startCall,
     endCall,
     toggleMute,
@@ -86,13 +97,13 @@ export default function InterviewRoom() {
     }
   }, [sessionId, navigate]);
 
-  // Start the Vapi call when data is ready
+  // Start the Vapi call when data is ready AND system check passed
   useEffect(() => {
-    if (interviewData?.assistantConfig && !hasStarted && status === "idle") {
+    if (interviewData?.assistantConfig && !hasStarted && status === "idle" && systemCheckPassed) {
       startCall(interviewData.assistantConfig);
       timer.start();
     }
-  }, [interviewData, hasStarted, status]);
+  }, [interviewData, hasStarted, status, systemCheckPassed]);
 
   // Auto-scroll transcript
   useEffect(() => {
@@ -185,18 +196,30 @@ export default function InterviewRoom() {
     ended: "Interview ended",
   }[status];
 
+  const displayStatus = isThinking ? "Analyzing your answer..." : statusText;
+
   const statusColor =
     status === "error"
       ? "text-red-500"
-      : status === "speaking"
-        ? "text-brand-500"
-        : status === "listening"
-          ? "text-green-500"
-          : "text-surface-400";
+      : isThinking
+        ? "text-purple-400 animate-pulse"
+        : status === "speaking"
+          ? "text-brand-500"
+          : status === "listening"
+            ? "text-green-500"
+            : "text-surface-400";
 
   return (
-    <div className="fixed inset-0 bg-surface-950 text-white flex flex-col">
-      {/* Top bar */}
+    <>
+      {!systemCheckPassed && (
+        <SystemCheck 
+          onPassed={() => setSystemCheckPassed(true)} 
+          persona={TYPE_PERSONAS[interviewData?.type]} 
+        />
+      )}
+      
+      <div className="fixed inset-0 bg-surface-950 text-white flex flex-col">
+        {/* Top bar */}
       <header className="flex items-center justify-between px-6 py-4 border-b border-surface-800">
         <div className="flex items-center gap-3">
           <div
@@ -214,26 +237,31 @@ export default function InterviewRoom() {
           >
             {timer.formatted}
           </span>
+          {/* Difficulty Badge (Admin/Dev feature) */}
+          <span className="hidden sm:inline-block px-2 py-0.5 rounded text-xs font-mono bg-surface-800 text-surface-400 border border-surface-700 uppercase">
+            LVL: {interviewData?.difficulty || "INTERMEDIATE"}
+          </span>
         </div>
 
         <div className="flex items-center gap-2">
           {status === "connected" ||
           status === "speaking" ||
-          status === "listening" ? (
+          status === "listening" || 
+          isThinking ? (
             <Wifi className="w-4 h-4 text-green-500" />
           ) : (
             <WifiOff className="w-4 h-4 text-red-500" />
           )}
-          <span className={`text-sm ${statusColor}`}>{statusText}</span>
+          <span className={`text-sm ${statusColor}`}>{displayStatus}</span>
         </div>
       </header>
 
       {/* Main area */}
       <main className="flex-1 flex flex-col items-center justify-center px-6 relative">
-        {/* AI speaking orb */}
+        {/* AI speaking/thinking orb */}
         <motion.div
           animate={{
-            scale: status === "speaking" ? [1, 1.1, 1] : 1,
+            scale: status === "speaking" ? [1, 1.1, 1] : isThinking ? [1, 1.05, 1] : 1,
             boxShadow:
               status === "speaking"
                 ? [
@@ -241,20 +269,30 @@ export default function InterviewRoom() {
                     "0 0 60px rgba(108,99,255,0.5)",
                     "0 0 20px rgba(108,99,255,0.3)",
                   ]
+                : isThinking
+                ? [
+                    "0 0 10px rgba(168,85,247,0.2)",
+                    "0 0 30px rgba(168,85,247,0.4)",
+                    "0 0 10px rgba(168,85,247,0.2)",
+                  ]
                 : "0 0 20px rgba(108,99,255,0.1)",
           }}
           transition={{
-            duration: 1.5,
-            repeat: status === "speaking" ? Infinity : 0,
+            duration: status === "speaking" ? 1.5 : 2,
+            repeat: (status === "speaking" || isThinking) ? Infinity : 0,
           }}
-          className="w-32 h-32 sm:w-40 sm:h-40 rounded-full bg-gradient-to-br from-brand-500 to-purple-600 flex items-center justify-center mb-8"
+          className={`w-32 h-32 sm:w-40 sm:h-40 rounded-full flex items-center justify-center mb-8 ${isThinking ? 'bg-gradient-to-br from-purple-500 to-indigo-600 opacity-80' : 'bg-gradient-to-br from-brand-500 to-purple-600'}`}
         >
-          <Mic className="w-12 h-12 sm:w-16 sm:h-16 text-white" />
+          {isThinking ? (
+            <Loader2 className="w-12 h-12 sm:w-16 sm:h-16 text-white animate-spin" />
+          ) : (
+            <Mic className="w-12 h-12 sm:w-16 sm:h-16 text-white" />
+          )}
         </motion.div>
 
         {/* Status label */}
         <p className={`text-lg font-medium mb-4 ${statusColor}`}>
-          {statusText}
+          {displayStatus}
         </p>
 
         {/* Waveform */}
@@ -349,6 +387,7 @@ export default function InterviewRoom() {
           {isEnding ? "Ending..." : "End Interview"}
         </button>
       </footer>
-    </div>
+      </div>
+    </>
   );
 }

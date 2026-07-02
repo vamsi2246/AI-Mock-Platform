@@ -248,7 +248,20 @@ export default function Report() {
             </RadarChart>
           </ResponsiveContainer>
         </motion.div>
-      </div>
+      {/* Executive Summary */}
+      {reportData.executiveSummary && reportData.executiveSummary !== "N/A" && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="glass-card p-8 bg-brand-500/5 border border-brand-500/20"
+        >
+          <h3 className="font-semibold mb-3 text-lg">Executive Summary</h3>
+          <p className="text-surface-700 dark:text-surface-300 leading-relaxed text-base">
+            {reportData.executiveSummary}
+          </p>
+        </motion.div>
+      )}
 
       {/* Individual scores */}
       <motion.div
@@ -318,6 +331,29 @@ export default function Report() {
             ))}
           </ul>
         </motion.div>
+        
+        {reportData.blindSpots && JSON.parse(reportData.blindSpots).length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+            className="glass-card p-6 md:col-span-2 bg-red-500/5 border border-red-500/10"
+          >
+            <h3 className="font-semibold mb-4 flex items-center gap-2 text-red-600 dark:text-red-400">
+              Blind Spots
+            </h3>
+            <ul className="space-y-3">
+              {JSON.parse(reportData.blindSpots).map((b, i) => (
+                <li key={i} className="flex gap-3 text-sm">
+                  <span className="flex-shrink-0 w-5 h-5 rounded-full bg-red-100 dark:bg-red-900/30 text-red-600 flex items-center justify-center text-xs">
+                    ?
+                  </span>
+                  <span className="text-surface-600 dark:text-surface-300">{b}</span>
+                </li>
+              ))}
+            </ul>
+          </motion.div>
+        )}
       </div>
 
       {/* Summary */}
@@ -360,7 +396,22 @@ export default function Report() {
         </motion.div>
       )}
 
-      {/* Transcript */}
+      {/* Preparation Roadmap */}
+      {reportData.preparationRoadmap && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.65 }}
+          className="glass-card p-6 border border-brand-500/20"
+        >
+          <h3 className="font-semibold mb-3 text-brand-600 dark:text-brand-400">Preparation Roadmap</h3>
+          <p className="text-surface-700 dark:text-surface-300 leading-relaxed text-sm whitespace-pre-wrap">
+            {reportData.preparationRoadmap}
+          </p>
+        </motion.div>
+      )}
+
+      {/* Interview Timeline */}
       {reportData.session?.messages &&
         reportData.session.messages.length > 0 && (
           <motion.div
@@ -374,33 +425,46 @@ export default function Report() {
               className="w-full flex items-center justify-between p-6"
             >
               <h3 className="font-semibold flex items-center gap-2">
-                <MessageSquare className="w-5 h-5" /> Interview Transcript
+                <MessageSquare className="w-5 h-5" /> Interview Timeline & Reasoning
               </h3>
               <ChevronDown
                 className={`w-5 h-5 transition-transform ${showTranscript ? "rotate-180" : ""}`}
               />
             </button>
             {showTranscript && (
-              <div className="px-6 pb-6 space-y-4 max-h-[500px] overflow-y-auto custom-scrollbar">
-                {reportData.session.messages.map((msg, i) => (
-                  <div
-                    key={i}
-                    className={`flex gap-3 ${msg.role === "USER" ? "justify-end" : ""}`}
-                  >
+              <div className="px-6 pb-6 space-y-6 max-h-[600px] overflow-y-auto custom-scrollbar">
+                {reportData.session.messages.map((msg, i) => {
+                  if (msg.role === "METADATA") {
+                    return (
+                      <div key={i} className="pl-12">
+                        <div className="bg-surface-100 dark:bg-surface-800/50 rounded-lg p-3 border-l-2 border-brand-500 text-xs">
+                          <span className="text-brand-600 dark:text-brand-400 font-semibold mb-1 block">AI Reasoning</span>
+                          <span className="text-surface-600 dark:text-surface-300 italic">{msg.content}</span>
+                        </div>
+                      </div>
+                    );
+                  }
+                  
+                  return (
                     <div
-                      className={`max-w-[80%] p-4 rounded-2xl text-sm leading-relaxed ${
-                        msg.role === "ASSISTANT"
-                          ? "bg-surface-100 dark:bg-surface-800"
-                          : "bg-brand-500 text-white"
-                      }`}
+                      key={i}
+                      className={`flex gap-3 ${msg.role === "USER" ? "justify-end" : ""}`}
                     >
-                      <p className="text-xs font-medium mb-1 opacity-60">
-                        {msg.role === "ASSISTANT" ? "🎤 Interviewer" : "👤 You"}
-                      </p>
-                      {msg.content}
+                      <div
+                        className={`max-w-[85%] p-4 rounded-2xl text-sm leading-relaxed ${
+                          msg.role === "ASSISTANT"
+                            ? "bg-surface-100 dark:bg-surface-800"
+                            : "bg-brand-500 text-white shadow-md shadow-brand-500/20"
+                        }`}
+                      >
+                        <p className="text-xs font-medium mb-1 opacity-60">
+                          {msg.role === "ASSISTANT" ? "🎤 Interviewer" : "👤 You"}
+                        </p>
+                        {msg.content}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </motion.div>

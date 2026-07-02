@@ -12,6 +12,8 @@ import {
   Trash2,
   FileText,
   Search,
+  Clock,
+  TrendingUp,
 } from "lucide-react";
 import {
   LineChart,
@@ -84,16 +86,18 @@ export default function Dashboard() {
   const stats = dashboard?.stats;
   const statCards = [
     {
-      label: "Total Interviews",
-      value: stats?.totalInterviews ?? 0,
-      icon: BarChart3,
-      color: "text-brand-500",
+      label: "Interview Streak",
+      value: stats?.streak ?? 0,
+      icon: Flame,
+      color: "text-orange-500",
+      suffix: " days",
     },
     {
-      label: "Completed",
-      value: stats?.completedInterviews ?? 0,
-      icon: Trophy,
-      color: "text-green-500",
+      label: "Avg. Duration",
+      value: stats?.averageDuration ?? 0,
+      icon: Clock,
+      color: "text-blue-500",
+      suffix: " min",
     },
     {
       label: "Average Score",
@@ -103,11 +107,11 @@ export default function Dashboard() {
       suffix: "/100",
     },
     {
-      label: "Streak",
-      value: stats?.streak ?? 0,
-      icon: Flame,
-      color: "text-orange-500",
-      suffix: " days",
+      label: "Recommended",
+      value: stats?.recommendedPractice || "Behavioral",
+      icon: TrendingUp,
+      color: "text-green-500",
+      isText: true,
     },
   ];
 
@@ -136,9 +140,9 @@ export default function Dashboard() {
             <div className="flex items-center justify-between mb-3">
               <stat.icon className={`w-5 h-5 ${stat.color}`} />
             </div>
-            <p className="text-2xl font-bold">
+            <p className={`${stat.isText ? 'text-xl' : 'text-3xl'} font-bold text-white tracking-tight`}>
               {stat.value}
-              {stat.suffix || ""}
+              {!stat.isText && <span className="text-surface-400 text-lg ml-1 font-normal">{stat.suffix || ""}</span>}
             </p>
             <p className="text-sm text-surface-400 mt-1">{stat.label}</p>
           </motion.div>
@@ -345,18 +349,20 @@ export default function Dashboard() {
             ))}
           </div>
         ) : (
-          <div className="text-center py-12">
-            <Mic className="w-12 h-12 text-surface-300 dark:text-surface-600 mx-auto mb-4" />
-            <p className="text-surface-500 font-medium">No interviews yet</p>
-            <p className="text-surface-400 text-sm mt-1">
-              Start your first practice session
+          <div className="flex flex-col items-center justify-center py-16 px-4 border-2 border-dashed border-surface-200 dark:border-surface-800 rounded-2xl bg-surface-50 dark:bg-surface-900/50">
+            <div className="w-16 h-16 bg-brand-500/10 rounded-full flex items-center justify-center mb-6 border border-brand-500/20">
+              <Mic className="w-8 h-8 text-brand-500" />
+            </div>
+            <h4 className="text-xl font-bold text-surface-900 dark:text-white mb-2">No interviews yet</h4>
+            <p className="text-surface-500 dark:text-surface-400 text-center max-w-sm mb-8">
+              Start your first practice session to get personalized feedback and build your interview skills.
             </p>
             <Link
               to="/interview/setup"
-              className="gradient-btn px-5 py-2.5 text-sm inline-flex items-center gap-2 mt-4"
+              className="gradient-btn px-6 py-3 font-medium inline-flex items-center gap-2 shadow-lg shadow-brand-500/20"
             >
               <Mic className="w-4 h-4" />
-              Start Interview
+              Start First Interview
             </Link>
           </div>
         )}
