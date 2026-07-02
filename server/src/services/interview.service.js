@@ -43,7 +43,7 @@ export class InterviewService {
       targetRole: profile?.targetRole || "Software Engineer",
       currentRole: profile?.currentRole || "Developer",
       yearsExperience: profile?.yearsExperience || 0,
-      skills: profile?.skills || [],
+      skills: typeof profile?.skills === 'string' ? JSON.parse(profile.skills) : (profile?.skills || []),
       resumeText: profile?.resumeText,
       duration: Math.round(duration / 60),
     });

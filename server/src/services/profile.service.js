@@ -21,7 +21,7 @@ export class ProfileService {
       currentRole: profile.currentRole,
       targetRole: profile.targetRole,
       yearsExperience: profile.yearsExperience,
-      skills: profile.skills,
+      skills: typeof profile.skills === 'string' ? JSON.parse(profile.skills) : (profile.skills || []),
       resumeUrl: profile.resumeUrl,
       linkedinUrl: profile.linkedinUrl,
       githubUrl: profile.githubUrl,
@@ -30,10 +30,15 @@ export class ProfileService {
   }
 
   static async updateProfile(userId, data) {
+    const profileData = { ...data };
+    if (profileData.skills && Array.isArray(profileData.skills)) {
+      profileData.skills = JSON.stringify(profileData.skills);
+    }
+
     const profile = await prisma.profile.upsert({
       where: { userId },
-      update: data,
-      create: { userId, ...data },
+      update: profileData,
+      create: { userId, ...profileData },
       include: { user: { select: { email: true } } },
     });
 
@@ -46,7 +51,7 @@ export class ProfileService {
       currentRole: profile.currentRole,
       targetRole: profile.targetRole,
       yearsExperience: profile.yearsExperience,
-      skills: profile.skills,
+      skills: typeof profile.skills === 'string' ? JSON.parse(profile.skills) : (profile.skills || []),
       resumeUrl: profile.resumeUrl,
       linkedinUrl: profile.linkedinUrl,
       githubUrl: profile.githubUrl,
