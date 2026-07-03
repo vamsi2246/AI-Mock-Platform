@@ -27,9 +27,26 @@ const app = express();
 app.use(helmet());
 app.use(
   cors({
-    origin: env.FRONTEND_URL,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like server-to-server or curl)
+      if (!origin) return callback(null, true);
+
+      const normalizedFrontend = env.FRONTEND_URL.replace(/\/$/, "");
+
+      if (
+        origin === normalizedFrontend ||
+        origin === "http://localhost:5173" ||
+        origin === "http://localhost:5174" ||
+        (origin.endsWith(".vercel.app") && origin.includes("ai-mock-platform"))
+      ) {
+        callback(null, true);
+      } else {
+        logger.warn(`Blocked by CORS: ${origin}`);
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
