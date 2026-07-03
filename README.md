@@ -363,60 +363,71 @@ This project was designed around the assignment's primary objective:
 
 # 🚀 Getting Started
 
-## Clone Repository
+## 💻 Local Development
 
+### 1. Clone Repository & Install Dependencies
+Run the unified install script from the root directory:
 ```bash
 git clone https://github.com/vamsi2246/AI-Mock-Platform.git
+cd AI-Mock-Platform
+npm run install:all
 ```
 
-## Install Dependencies
+### 2. Configure Environment Variables
+* Copy `client/.env.example` to `client/.env` and update variables.
+* Copy `server/.env.example` to `server/.env` and update variables.
 
+### 3. Initialize Database & Run
+To run both backend and frontend servers simultaneously in development mode:
 ```bash
-cd client
-npm install
+# Push Prisma schema to SQLite
+npm run prisma:push
 
-cd ../server
-npm install
-```
-
-## Configure Environment Variables
-
-### Client
-
-```env
-VITE_API_URL=http://localhost:3001
-VITE_VAPI_PUBLIC_KEY=
-```
-
-### Server
-
-```env
-OPENAI_API_KEY=
-JWT_SECRET=
-DATABASE_URL="file:./dev.db"
-VAPI_PRIVATE_KEY=
+# Run local development servers
+# Server runs on port 3001, Client runs on port 5173
+npm run dev:server  # Terminal 1
+npm run dev:client  # Terminal 2
 ```
 
 ---
 
-## Run Backend
+# ☁️ Production Deployment
 
-```bash
-cd server
-npx prisma db push
-npm run dev
-```
+### 1. Frontend (React SPA) -> Vercel
+Deploy the frontend client directory separately to Vercel:
+* **Root Directory:** `client`
+* **Build Command:** `npm run build`
+* **Output Directory:** `dist`
+* **Vercel Routing:** React Router is automatically handled by the pre-configured [`client/vercel.json`](file:///Users/apple/Desktop/AI-Mock-Platform/client/vercel.json) rewrite rules.
+* **Environment Variables:**
+  * `VITE_API_URL`: Your deployed Render backend URL ending in `/api` (e.g., `https://ai-mock-backend.onrender.com/api`).
+  * `VITE_VAPI_PUBLIC_KEY`: Your Vapi public key.
+
+### 2. Backend (Node/Express API) -> Render
+Deploy the backend server directory separately to Render as a **Web Service**:
+* **Root Directory:** `server`
+* **Build Command:** `npm install && npx prisma generate`
+* **Start Command:** `npx prisma db push && npm start`
+* **Persistent Disk (Volume):** SQLite requires a persistent disk volume to save database records and uploads between service restarts.
+  * Click **Add Disk** in the Render settings.
+  * **Name:** `app-data`
+  * **Mount Path:** `/opt/data`
+  * **Size:** `1 GB`
+* **Environment Variables:**
+  * `NODE_ENV`: `production`
+  * `PORT`: `3001`
+  * `DATABASE_URL`: `"file:/opt/data/dev.db"` (Must point to the persistent mount path!)
+  * `FRONTEND_URL`: Your deployed Vercel domain (e.g., `https://ai-mock-interview.vercel.app`).
+  * `JWT_SECRET` & `JWT_REFRESH_SECRET`: Random 32+ character keys.
+  * `OPENAI_API_KEY`, `VAPI_API_KEY`, and `VAPI_PUBLIC_KEY`.
 
 ---
 
-## Run Frontend
+# ⚠️ Troubleshooting & Common Issues
+* **"Voice Connection Error / Connection Error":** This occurs if your Vapi credentials are invalid or if your Vapi public key is not loaded. Ensure that the keys match in `server/.env`.
+* **"Failed to save interview" (500 Error):** This happens when the AI report evaluator crashes. Check that your `OPENAI_API_KEY` has active billing credits at [platform.openai.com](https://platform.openai.com). If it runs out of quota (429 error), the backend automatically falls back to estimated scores and outlines quota fix instructions without crashing.
+* **Database Resetting:** If you notice your user registrations or mock history disappear after a Render redeployment, ensure that you have mounted a persistent volume and that `DATABASE_URL` is pointing inside `/opt/data/`.
 
-```bash
-cd client
-npm run dev
-```
-
----
 
 # 📸 Screenshots
 
