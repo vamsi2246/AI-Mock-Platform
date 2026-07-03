@@ -264,6 +264,7 @@ export default function Report() {
             </RadarChart>
           </ResponsiveContainer>
         </motion.div>
+      </div>
       {/* Executive Summary */}
       {reportData.executiveSummary && reportData.executiveSummary !== "N/A" && (
         <motion.div

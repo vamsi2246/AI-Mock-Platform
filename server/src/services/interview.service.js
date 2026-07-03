@@ -3,6 +3,7 @@ import { PromptBuilder } from "./prompt.builder.js";
 import { VapiService } from "./vapi.service.js";
 import { ApiError } from "../utils/apiError.js";
 import logger from "../utils/logger.js";
+import { env } from "../config/env.js";
 
 export class InterviewService {
   /**
@@ -82,6 +83,7 @@ export class InterviewService {
       duration,
       type,
       difficulty,
+      vapiPublicKey: env.VAPI_PUBLIC_KEY,
     };
   }
 

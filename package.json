@@ -1,0 +1,15 @@
+{
+  "name": "ai-mock-interview-platform",
+  "version": "1.0.0",
+  "description": "AI Mock Interview Platform — Full Stack Application",
+  "scripts": {
+    "install:all": "npm install --prefix server && npm install --prefix client",
+    "prisma:generate": "npm run db:generate --prefix server",
+    "prisma:push": "npm run db:push --prefix server",
+    "build:client": "npm run build --prefix client",
+    "build": "npm run install:all && npm run prisma:generate && npm run build:client",
+    "start": "npm run prisma:push && npm start --prefix server",
+    "dev:server": "npm run dev --prefix server",
+    "dev:client": "npm run dev --prefix client"
+  }
+}

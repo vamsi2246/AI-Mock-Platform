@@ -10,10 +10,10 @@ const VAPI_BASE_URL = "https://api.vapi.ai";
 
 // Voice mapping — different voices for different interviewer personas
 const VOICE_MAP = {
-  BEHAVIORAL: { provider: "11labs", voiceId: "sarah" },
-  TECHNICAL: { provider: "11labs", voiceId: "chris" },
-  SYSTEM_DESIGN: { provider: "11labs", voiceId: "laura" },
-  HR: { provider: "11labs", voiceId: "charlie" },
+  BEHAVIORAL: { provider: "vapi", voiceId: "Emma" },
+  TECHNICAL: { provider: "vapi", voiceId: "Elliot" },
+  SYSTEM_DESIGN: { provider: "vapi", voiceId: "Clara" },
+  HR: { provider: "vapi", voiceId: "Nico" },
 };
 
 export class VapiService {

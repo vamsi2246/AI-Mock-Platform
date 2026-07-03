@@ -100,7 +100,7 @@ export default function InterviewRoom() {
   // Start the Vapi call when data is ready AND system check passed
   useEffect(() => {
     if (interviewData?.assistantConfig && !hasStarted && status === "idle" && systemCheckPassed) {
-      startCall(interviewData.assistantConfig);
+      startCall(interviewData.assistantConfig, interviewData.vapiPublicKey || VAPI_KEY);
       timer.start();
     }
   }, [interviewData, hasStarted, status, systemCheckPassed]);

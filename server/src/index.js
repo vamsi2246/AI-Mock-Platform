@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import helmet from "helmet";
+import path from "path";
+import { fileURLToPath } from "url";
 import { env } from "./config/env.js";
 import {
   errorHandler,
@@ -8,6 +10,9 @@ import {
 } from "./middleware/error.middleware.js";
 import { apiLimiter } from "./middleware/rateLimiter.middleware.js";
 import logger from "./utils/logger.js";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Routes
 import authRoutes from "./routes/auth.routes.js";
@@ -61,6 +66,15 @@ app.use("/api/webhook", webhookRoutes);
 
 // ─── Static file serving for uploads ──────────────
 app.use("/uploads", express.static(env.UPLOAD_DIR));
+
+// ─── Serve Frontend Client in Production ──────────
+if (env.NODE_ENV === "production") {
+  const clientDistPath = path.resolve(__dirname, "../../client/dist");
+  app.use(express.static(clientDistPath));
+  app.get(/^(?!\/api).*/, (req, res) => {
+    res.sendFile(path.join(clientDistPath, "index.html"));
+  });
+}
 
 // ─── Error Handling ───────────────────────────────
 app.use(notFoundHandler);

@@ -23,13 +23,18 @@ export function useVapi({
     [onStatusChange],
   );
 
-  const initVapi = useCallback(async () => {
+  const initVapi = useCallback(async (activePublicKey) => {
     if (vapiRef.current) return vapiRef.current;
+
+    const keyToUse = activePublicKey || publicKey;
+    if (!keyToUse) {
+      console.warn("Vapi Public Key is missing or empty.");
+    }
 
     try {
       const VapiModule = await import("@vapi-ai/web");
       const VapiClass = VapiModule.default || VapiModule;
-      const vapi = new VapiClass(publicKey);
+      const vapi = new VapiClass(keyToUse);
       vapiRef.current = vapi;
 
       vapi.on("call-start", () => {
@@ -89,11 +94,11 @@ export function useVapi({
   }, [publicKey, updateStatus, onMessage, onCallEnd, onError]);
 
   const startCall = useCallback(
-    async (assistantConfig) => {
+    async (assistantConfig, activePublicKey) => {
       updateStatus("connecting");
       setTranscript([]);
 
-      const vapi = await initVapi();
+      const vapi = await initVapi(activePublicKey);
       if (!vapi) return;
 
       try {
