@@ -5,7 +5,7 @@
   "scripts": {
     "install:all": "npm install --prefix server && npm install --prefix client",
     "prisma:generate": "DATABASE_URL=${DATABASE_URL:-file:./dev.db} npm run db:generate --prefix server",
-    "prisma:push": "DATABASE_URL=${DATABASE_URL:-file:./dev.db} npm run db:push --prefix server",
+    "prisma:push": "node server/src/utils/prestart.js && DATABASE_URL=${DATABASE_URL:-file:./dev.db} npm run db:push --prefix server",
     "build:client": "npm run build --prefix client",
     "build": "npm run install:all && npm run prisma:generate && npm run build:client",
     "start": "npm run prisma:push && npm start --prefix server",
